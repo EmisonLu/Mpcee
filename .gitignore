@@ -17,3 +17,5 @@ tee/bin/app
 tee/bin/enclave.signed.so
 tee/lib/libEnclave_u.a
 tee/lib/libenclave.a
+
+server/server
