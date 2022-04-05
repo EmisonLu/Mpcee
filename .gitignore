@@ -13,9 +13,10 @@ Cargo.lock
 tee/app/Enclave_u.*
 tee/enclave/Enclave_t.*
 tee/enclave/enclave.so
-tee/bin/app
 tee/bin/enclave.signed.so
 tee/lib/libEnclave_u.a
 tee/lib/libenclave.a
+tee/app/libEnclave_u.a
 
 server/server
+server/enclave.signed.so

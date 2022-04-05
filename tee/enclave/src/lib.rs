@@ -17,48 +17,40 @@
 
 #![crate_name = "helloworldsampleenclave"]
 #![crate_type = "staticlib"]
-
 #![cfg_attr(not(target_env = "sgx"), no_std)]
 #![cfg_attr(target_env = "sgx", feature(rustc_private))]
 
+extern crate sgx_trts;
 extern crate sgx_types;
 #[cfg(not(target_env = "sgx"))]
 #[macro_use]
 extern crate sgx_tstd as std;
 
 use sgx_types::*;
-use std::string::String;
-use std::vec::Vec;
 use std::io::{self, Write};
 use std::slice;
+use std::string::String;
+use std::vec::Vec;
+use std::ptr;
 
 #[no_mangle]
-pub extern "C" fn say_something(some_string: *const u8, some_len: usize) -> sgx_status_t {
+pub extern "C" fn sgx_say_something(
+    some_string: *const u8,
+    some_len: usize,
+    res: *mut u8,
+    res_max_len: usize,
+) -> sgx_status_t {
+    let s = unsafe { slice::from_raw_parts(some_string, some_len) };
+    let s = String::from_utf8(s.to_vec()).unwrap();
+    println!("{}", s);
 
-    let str_slice = unsafe { slice::from_raw_parts(some_string, some_len) };
-    let _ = io::stdout().write(str_slice);
+    let out = String::from("Hello, from sgx!");
 
-    // A sample &'static string
-    let rust_raw_string = "This is a in-Enclave ";
-    // An array
-    let word:[u8;4] = [82, 117, 115, 116];
-    // An vector
-    let word_vec:Vec<u8> = vec![32, 115, 116, 114, 105, 110, 103, 33];
-
-    // Construct a string from &'static string
-    let mut hello_string = String::from(rust_raw_string);
-
-    // Iterate on word array
-    for c in word.iter() {
-        hello_string.push(*c as char);
+    if out.len() < res_max_len {
+        unsafe {
+            ptr::copy_nonoverlapping(out.as_ptr(), res, out.len());
+        }
     }
-
-    // Rust style convertion
-    hello_string += String::from_utf8(word_vec).expect("Invalid UTF-8")
-                                               .as_str();
-
-    // Ocall to normal world for output
-    println!("{}", &hello_string);
 
     sgx_status_t::SGX_SUCCESS
 }

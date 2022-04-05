@@ -17,11 +17,11 @@
 
 ######## SGX SDK Settings ########
 
-SGX_SDK ?= /opt/sgxsdk
+SGX_SDK ?= /opt/intel/sgxsdk
 SGX_MODE ?= HW
 SGX_ARCH ?= x64
 
-TOP_DIR := /incubator-teaclave-sgx-sdk
+TOP_DIR := /opt/incubator-teaclave-sgx-sdk/
 include $(TOP_DIR)/buildenv.mk
 
 ifeq ($(shell getconf LONG_BIT), 32)
@@ -60,8 +60,8 @@ SGX_COMMON_CFLAGS += -fstack-protector
 
 CUSTOM_LIBRARY_PATH := ./lib
 CUSTOM_BIN_PATH := ./bin
-CUSTOM_EDL_PATH := /incubator-teaclave-sgx-sdk/edl
-CUSTOM_COMMON_PATH := /incubator-teaclave-sgx-sdk/common
+CUSTOM_EDL_PATH := /opt/incubator-teaclave-sgx-sdk/edl
+CUSTOM_COMMON_PATH := /opt/incubator-teaclave-sgx-sdk/common
 
 ######## EDL Settings ########
 
@@ -75,8 +75,10 @@ App_Include_Paths := -I ./app -I./include -I$(SGX_SDK)/include -I$(CUSTOM_EDL_PA
 App_C_Flags := $(SGX_COMMON_CFLAGS) -fPIC -Wno-attributes $(App_Include_Paths)
 
 App_Rust_Path := ./app/target/release
-App_Enclave_u_Object :=lib/libEnclave_u.a
-App_Name := bin/app
+App_Enclave_u_Object :=app/libEnclave_u.a
+App_Name := bin/build_index bin/do_query bin/search_title
+
+Static_lib:= app/target/release/libdouble_input.a
 
 ######## Enclave Settings ########
 
@@ -99,7 +101,7 @@ RustEnclave_Link_Libs := -L$(CUSTOM_LIBRARY_PATH) -lenclave
 RustEnclave_Compile_Flags := $(SGX_COMMON_CFLAGS) $(ENCLAVE_CFLAGS) $(RustEnclave_Include_Paths)
 RustEnclave_Link_Flags := -Wl,--no-undefined -nostdlib -nodefaultlibs -nostartfiles -L$(SGX_LIBRARY_PATH) \
 	-Wl,--whole-archive -l$(Trts_Library_Name) -Wl,--no-whole-archive \
-	-Wl,--start-group -lsgx_tstdc -l$(Service_Library_Name) -l$(Crypto_Library_Name) $(RustEnclave_Link_Libs) -Wl,--end-group \
+	-Wl,--start-group -lsgx_tstdc -lsgx_tcxx -l$(Service_Library_Name) -l$(Crypto_Library_Name) -l$(ProtectedFs_Library_Name) $(RustEnclave_Link_Libs) -Wl,--end-group \
 	-Wl,--version-script=enclave/Enclave.lds \
 	$(ENCLAVE_LDFLAGS)
 
@@ -107,7 +109,8 @@ RustEnclave_Name := enclave/enclave.so
 Signed_RustEnclave_Name := bin/enclave.signed.so
 
 .PHONY: all
-all: $(App_Name) $(Signed_RustEnclave_Name)
+# all: $(App_Name) $(Signed_RustEnclave_Name)
+all: $(Static_lib) $(Signed_RustEnclave_Name)
 
 ######## EDL Objects ########
 
@@ -124,12 +127,12 @@ app/Enclave_u.o: $(Enclave_EDL_Files)
 
 $(App_Enclave_u_Object): app/Enclave_u.o
 	$(AR) rcsD $@ $^
+	cp $(App_Enclave_u_Object) ./lib
 
-$(App_Name): $(App_Enclave_u_Object) $(App_SRC_Files)
-	@cd app && SGX_SDK=$(SGX_SDK) cargo build $(App_Rust_Flags)
-	@echo "Cargo  =>  $@"
+bin/%: $(App_Enclave_u_Object) $(App_SRC_Files)
+	@cd app && SGX_SDK=$(SGX_SDK) cargo build $(App_Rust_Flags) --bin $*
 	mkdir -p bin
-	cp $(App_Rust_Path)/app ./bin
+	cp $(App_Rust_Path)/$* ./bin
 
 ######## Enclave Objects ########
 
@@ -153,6 +156,32 @@ enclave:
 
 .PHONY: clean
 clean:
-	@rm -f $(App_Name) $(RustEnclave_Name) $(Signed_RustEnclave_Name) enclave/*_t.* app/*_u.* lib/*.a
+	@rm -rf bin/app  $(RustEnclave_Name) $(Signed_RustEnclave_Name) enclave/*_t.* app/*_u.* lib/*.a
 	@cd enclave && cargo clean && rm -f Cargo.lock
 	@cd app && cargo clean && rm -f Cargo.lock
+
+.PHONY: index
+index: bin/idx
+
+.PHONY: compile
+compile: all
+
+bin/idx: bin/build_index
+	@echo "\n\n\n---- Indexing tantivy SGX ----"
+	# export RUST_LOG=info && export RUST_BACKTRACE=1 && cd bin && ./build_index "$@" < ${CORPUS}
+	cd bin && ./build_index "$@" < ${CORPUS}
+
+.PHONY: serve
+serve: bin/do_query
+	@cd bin && ./do_query idx
+
+$(Static_lib):app/src/lib.rs $(App_Enclave_u_Object) $(App_SRC_Files)
+	cd app && cargo b --release
+
+
+test.tar.gz: all
+	cp bin/enclave.signed.so ../datacenter
+	cp app/target/release/libtantivy.a ../datacenter/business
+	sync
+	cd ~/go/src/github.com/hyperledger/fabric-samples/multiorderer-network && peer lifecycle chaincode package test.tar.gz --path ~/go/src/github.com/datacenter --lang golang --label test
+

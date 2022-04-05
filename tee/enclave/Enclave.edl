@@ -16,13 +16,26 @@
 // under the License.
 
 enclave {
-    from "sgx_tstd.edl" import *;
-    from "sgx_stdio.edl" import *;
-    from "sgx_backtrace.edl" import *;
-    from "sgx_tstdc.edl" import *;
+from "sgx_asyncio.edl" import *;
+from "sgx_backtrace.edl" import *;
+from "sgx_env.edl" import *;
+from "sgx_fd.edl" import *;
+from "sgx_file.edl" import *;
+from "sgx_fs.edl" import *;
+from "sgx_mem.edl" import *;
+from "sgx_net.edl" import *;
+from "sgx_pipe.edl" import *;
+from "sgx_process.edl" import *;
+from "sgx_socket.edl" import *;
+from "sgx_stdio.edl" import *;
+from "sgx_sys.edl" import *;
+from "sgx_thread.edl" import *;
+from "sgx_time.edl" import *;
+from "sgx_tstd.edl" import *;
+from "sgx_tprotected_fs.edl" import *;
+
     trusted {
         /* define ECALLs here. */
-
-        public sgx_status_t say_something([in, size=len] const uint8_t* some_string, size_t len);
+        public sgx_status_t sgx_say_something([in, size=len] const uint8_t* some_string, size_t len, [out, size=res_max_len] uint8_t* res, size_t res_max_len); 
     };
 };
