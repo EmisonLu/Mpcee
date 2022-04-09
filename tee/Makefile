@@ -166,22 +166,9 @@ index: bin/idx
 .PHONY: compile
 compile: all
 
-bin/idx: bin/build_index
-	@echo "\n\n\n---- Indexing tantivy SGX ----"
-	# export RUST_LOG=info && export RUST_BACKTRACE=1 && cd bin && ./build_index "$@" < ${CORPUS}
-	cd bin && ./build_index "$@" < ${CORPUS}
-
 .PHONY: serve
 serve: bin/do_query
 	@cd bin && ./do_query idx
 
 $(Static_lib):app/src/lib.rs $(App_Enclave_u_Object) $(App_SRC_Files)
 	cd app && cargo b --release
-
-
-test.tar.gz: all
-	cp bin/enclave.signed.so ../datacenter
-	cp app/target/release/libtantivy.a ../datacenter/business
-	sync
-	cd ~/go/src/github.com/hyperledger/fabric-samples/multiorderer-network && peer lifecycle chaincode package test.tar.gz --path ~/go/src/github.com/datacenter --lang golang --label test
-

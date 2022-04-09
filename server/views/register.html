@@ -28,33 +28,19 @@
 </head>
 
 <body>
-    <br>
-    <br>
-    <br>
-    <br>
-    <br>
-    <br>
-    <br>
+    <br><br><br><br><br><br><br>
     <div class="content" align="center">
-        <br>
-        <br>
+        <br><br>
         <h1>Register</h1>
-        <img border="0" src="/static/img/default_icon.bmp" alt="default_image" width="50" height="50">
-        <br>
-        <br>
+        <img border="0" src="/static/image/default_icon.bmp" alt="default_image" width="50" height="50">
+        <br><br>
         <p class="ex1" style="color:#C8C8C8">-If you have already registered, here
             <strong><a href="/login">Login</a></strong>.-
         </p>
         <br>
-        <p>
-            Username <input type="test" id="userName" name="userName">
-        </p>
-        <p>
-            Password&nbsp; <input type="password" id="passWd" name="passWd">
-        </p>
-        <p>
-            Comfirm&nbsp;&nbsp;&nbsp; <input type="password" id="passWd_2" name="passWd_2">
-        </p>
+        <p>Username <input type="test" id="userName" name="userName"></p>
+        <p>Password&nbsp; <input type="password" id="passWd" name="passWd"></p>
+        <p>Comfirm&nbsp;&nbsp;&nbsp; <input type="password" id="passWd_2" name="passWd_2"></p>
         <p>
         <div class="btn-group btn-group-sm">
             <button type="button" onclick="register()" class="btn btn-primary"
@@ -62,15 +48,90 @@
                 Register </button>
         </div>
         </p>
-        <br>
-        <br>
+        <br><br>
     </div>
 
     <script src="/static/js/jquery.js"></script>
     <script src="/static/js/bootstrap.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/node-forge@0.7.0/dist/forge.min.js"></script>
 
-    <script src="/static/js/register.js"></script>
+    <script>
+        function register() {
+            'use strict';
+
+            var uname = document.getElementById('userName').value;
+            var pwd = document.getElementById('passWd').value;
+            var pwd_2 = document.getElementById('passWd_2').value;
+
+            if (typeof uname == "undefined" || uname == null || uname == "") {
+                alert("Username can not be empty!");
+                window.location.href = '/register';
+                return;
+            }
+            if (typeof pwd == "undefined" || pwd == null || pwd == "") {
+                alert("Password can not be blank!");
+                window.location.href = '/register';
+                return;
+            }
+            if (pwd.length < 8) {
+                alert("Password must be at least 8 characters long!");
+                window.location.href = '/register';
+                return;
+            }
+            if (pwd !== pwd_2) {
+                alert("The two password entries are inconsistent!");
+                window.location.href = '/register';
+                return;
+            }
+
+            $.ajax({
+                url: "/session_key",
+                async: false,
+                success: function (msg) {
+                    var rsa = forge.pki.rsa;
+
+                    var rsaPublicKey = rsa.setPublicKey(new forge.jsbn.BigInteger(msg.pk_n), new forge.jsbn.BigInteger(msg.pk_e));
+
+                    // =============TO DO! CHECK CERT  BEGIN===============
+                    var result = true;
+                    // ==============TO DO! CHECK CERT  END================
+
+                    if (result === false) {
+                        alert("Certificate verification failed!")
+                        window.location.href = '/register';
+                        return;
+                    }
+
+                    var user_pswd = {
+                        user: uname,
+                        password: pwd
+                    }
+                    var user_pswd_json = JSON.stringify(user_pswd);
+
+                    var enc_uname_pwd = rsaPublicKey.encrypt(user_pswd_json, 'RSAES-PKCS1-V1_5');
+
+                    $.ajax({
+                        url: "/register",
+                        async: false,
+                        method: 'POST',
+                        data: { "userName": uname, "enc_uname_pwd": btoa(enc_uname_pwd)},
+                        success: function (data) {
+                            if (data.res === "1") {
+                                window.location.assign("login.html");
+                                return;
+                            } else {
+                                alert(data.message);
+                                window.location.href = '/register';
+                                return;
+                            }
+                        }
+                    });
+                }
+            })
+
+            window.location.href = '/login'
+        }
+    </script>
 
 
 </body>

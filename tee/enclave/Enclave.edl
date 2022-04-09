@@ -36,6 +36,15 @@ from "sgx_tprotected_fs.edl" import *;
 
     trusted {
         /* define ECALLs here. */
-        public sgx_status_t sgx_say_something([in, size=len] const uint8_t* some_string, size_t len, [out, size=res_max_len] uint8_t* res, size_t res_max_len); 
+
+        public sgx_status_t user_logout([in, size=len] const uint8_t* some_string, size_t len);
+        public sgx_status_t server_hello([out, size=result_max_len] uint8_t* pk_n, size_t pk_n_len,
+                                        [out, size=result_max_len] uint8_t* pk_e, size_t pk_e_len,
+                                        [out, size=result_max_len] uint8_t* certficate, size_t certficate_len, size_t result_max_len);
+        public sgx_status_t user_register([in, size=enc_user_pswd_len] uint8_t* enc_user_pswd, size_t enc_user_pswd_len, 
+                                        [out, size=result_max_len] uint8_t* usera, size_t usera_len, 
+                                        [out, size=result_max_len] uint8_t* enc_pswd, size_t enc_pswd_len, size_t result_max_len);                             
+        public sgx_status_t get_session_key([in, size=enc_pswd_from_db_len] const uint8_t* enc_pswd_from_db, size_t enc_pswd_from_db_len, 
+                                        [in, size=enc_data_len] const uint8_t* enc_data, size_t enc_data_len);              
     };
 };

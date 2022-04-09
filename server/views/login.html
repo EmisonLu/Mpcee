@@ -2,6 +2,7 @@
 <html lang="en">
 
 <head>
+
     <title>Login</title>
 
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
@@ -29,30 +30,18 @@
 </head>
 
 <body>
-    <br>
-    <br>
-    <br>
-    <br>
-    <br>
-    <br>
-    <br>
+    <br><br><br><br><br><br><br>
     <div class="content" align="center">
-        <br>
-        <br>
+        <br><br>
         <h1>Login</h1>
-        <img border="0" src="/static/img/default_icon.bmp" alt="default_image" width="50" height="50">
-        <br>
-        <br>
+        <img border="0" src="/static/image/default_icon.bmp" alt="default_image" width="50" height="50">
+        <br><br>
         <p class="ex1" style="color:#C8C8C8">-If you haven't registered, here
             <strong><a href="/register">Register</a></strong>.-
         </p>
         <br>
-        <p>
-            Username <input type="test" id="userName" name="userName">
-        </p>
-        <p>
-            Password&nbsp; <input type="password" id="passWd" name="passWd">
-        </p>
+        <p>Username <input type="test" id="userName" name="userName"></p>
+        <p>Password&nbsp; <input type="password" id="passWd" name="passWd"></p>
         <p>
         <div class="btn-group btn-group-sm">
             <button type="button" onclick="login()" class="btn btn-primary"
@@ -60,15 +49,106 @@
             </button>
         </div>
         </p>
-        <br>
-        <br>
+        <br><br>
     </div>
 
     <script src="/static/js/jquery.js"></script>
     <script src="/static/js/bootstrap.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/node-forge@0.7.0/dist/forge.min.js"></script>
 
-    <script src="/static/js/login.js"></script>
+    <script>
+        function login() {
+            'use strict';
+
+            var uname = document.getElementById('userName').value;
+            var pwd = document.getElementById('passWd').value;
+
+            if (typeof uname == "undefined" || uname == null || uname == "") {
+                alert("Username can not be empty!");
+                window.location.href = '/login';
+                return;
+            }
+            if (typeof pwd == "undefined" || pwd == null || pwd == "") {
+                alert("Password can not be blank!");
+                window.location.href = '/login';
+                return;
+            }
+
+            $.ajax({
+                url: "/session_key",
+                async: false,
+                success: function (msg) {
+                    var rsa = forge.pki.rsa;
+                    var rsaPublicKey = rsa.setPublicKey(new forge.jsbn.BigInteger(msg.pk_n), new forge.jsbn.BigInteger(msg.pk_e));
+
+                    // =============TO DO! CHECK CERT  BEGIN===============
+                    var result = true;
+                    // ==============TO DO! CHECK CERT  END================
+
+                    if (result === false) {
+                        alert("Certificate verification failed!")
+                        window.location.href = '/login';
+                        return;
+                    }
+
+                    var session_key_arr = [];
+                    for (let i = 0; i < 32; i++) {
+                        session_key_arr.push(randomNum(0, 256));
+                    }
+
+                    var session_key_u8 = Uint8Array.from(session_key_arr);
+
+                    sessionStorage.setItem('session_key', session_key_u8);
+                    sessionStorage.setItem('userName', uname);
+                    var session_key_str = bin2String(session_key_u8);
+
+                    var session_package = {
+                        user: uname,
+                        password: pwd,
+                        key: session_key_str
+                    }
+                    var session_package_json = JSON.stringify(session_package);
+
+                    var enc_session_package = rsaPublicKey.encrypt(session_package_json, 'RSAES-PKCS1-V1_5');
+
+                    $.ajax({
+                        url: "/login",
+                        method: "POST",
+                        async: false,
+                        data: { "userName": uname, "enc_session_package": btoa(enc_session_package) },
+                        success: function (data) {
+                            if (data.res === "1") {
+                                window.location.href = '/';
+                                return;
+                            } else {
+                                alert(data.message);
+                                window.location.href = '/login';
+                                return;
+                            }
+                        }
+                    });
+                }
+            })
+        }
+
+        function randomNum(minNum, maxNum) {
+            switch (arguments.length) {
+                case 1:
+                    return parseInt(Math.random() * minNum + 1, 10);
+                    break;
+                case 2:
+                    return parseInt(Math.random() * (maxNum - minNum + 1) + minNum, 10);
+                    break;
+                default:
+                    return 0;
+                    break;
+            }
+        }
+
+        function bin2String(array) {
+            return String.fromCharCode.apply(String, array);
+        }
+    </script>
 
 </body>
 

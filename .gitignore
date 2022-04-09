@@ -20,3 +20,4 @@ tee/app/libEnclave_u.a
 
 server/server
 server/enclave.signed.so
+server/lastupdate.tmp

@@ -7,6 +7,70 @@
     <title>Document</title>
 </head>
 <body>
-    <h1>Hello World!</h1>
+    <h1>Hello, world!</h1>
+    <br>
+    <a href="" onclick="logout();return false;">logout</a>
+
+    <script src="https://cdn.jsdelivr.net/npm/node-forge@0.7.0/dist/forge.min.js"></script>
+    <script src="/static/js/jquery.js"></script>
+    <script>
+        function logout() {
+            'use strict';
+            var username = window.sessionStorage.getItem("userName")
+
+            var userName_struct = {
+                a: username
+            }
+            var userName_str = JSON.stringify(userName_struct);
+
+            var key = window.sessionStorage.getItem("session_key");
+
+            var key_str_arr = key.split(",");
+
+            var key_arr = [];
+            for (let i = 0; i < 32; i++) {
+                key_arr.push(parseInt(key_str_arr[i]))
+            }
+
+            var key_str = bin2String(key_arr);
+            var iv = Uint8Array.from([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
+            var iv_str = bin2String(iv);
+
+            var cipher = forge.cipher.createCipher('AES-CBC', key_str);
+            cipher.start({ iv: iv_str });
+            cipher.update(forge.util.createBuffer(userName_str));
+            cipher.finish();
+            var encrypted = cipher.output;
+
+            var package_struct = {
+                user: username,
+                data: btoa(encrypted.data)
+            }
+
+            var package_str = JSON.stringify(package_struct);
+
+            $.ajax({
+                url: "/logout",
+                async: false,
+                data: { "package_str": package_str },
+                success: function (data) {
+                    if (data.res === "1") {
+                        sessionStorage.removeItem('userName');
+                        sessionStorage.removeItem('session_key');
+                        window.location.href = '/login';
+                        return;
+                    } else {
+                        alert(data.message);
+                        window.location.href = '/';
+                        return;
+                    }
+                }
+            });
+        }
+
+        function bin2String(array) {
+            return String.fromCharCode.apply(String, array);
+        }
+    </script>
 </body>
 </html>

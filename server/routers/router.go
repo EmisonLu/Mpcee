@@ -6,10 +6,10 @@ import (
 )
 
 func init() {
-    beego.Router("/", &controllers.MainController{})
+	beego.Router("/", &controllers.MainController{}, "get:ShowIndex")
 
-	beego.Router("/login", &controllers.UserLoginController{})
-	beego.Router("/register", &controllers.UserRegController{})
-	beego.Router("/logout", &controllers.UserLogoutController{})
-	
+	beego.Router("/login", &controllers.LoginController{})
+	beego.Router("/logout", &controllers.LogoutController{})
+	beego.Router("/session_key", &controllers.SessionKeyController{})
+	beego.Router("/register", &controllers.RegController{})
 }
