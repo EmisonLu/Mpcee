@@ -12,4 +12,5 @@ func init() {
 	beego.Router("/logout", &controllers.LogoutController{})
 	beego.Router("/session_key", &controllers.SessionKeyController{})
 	beego.Router("/register", &controllers.RegController{})
+	beego.Router("/psi", &controllers.PsiController{})
 }
