@@ -7,6 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MPCEE PSI</title>
     <link href="http://fonts.cdnfonts.com/css/skia" rel="stylesheet">
+    <link rel="stylesheet" href="../static/css/lottiefiles.css" type="text/css" media="all">
     <style>
         @import url('http://fonts.cdnfonts.com/css/skia');
     </style>
@@ -61,13 +62,34 @@
             <a href="/" style="text-decoration:none">Mpcee PSI</a>
         </p>
     </div>
-    <br>
-    <br>
-    <br>
-    <br>
-    <br>
-    <br>
-    <br>
+
+    <div class="outline-none bg-purple-white rounded-full w-full border-0 md:p-3 pb-2 relative"
+        style="width: 15vw;left:25vw;top:6vw;position: absolute;">
+        <input id="searchinput" type="search" name="q" autocomplete="off" placeholder="Search for participant"
+            v-model="search"
+            class="search_field trans trans-slow outline-none text-sm transition hover:bg-grey-light focus:bg-lf-teal focus:text-white focus:font-bold bg-lf-bg rounded-lg shadow-sm w-full w-full border p-3 pl-10">
+        <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+            viewBox="0 0 52.966 52.966" xml:space="preserve"
+            class="h-4 text-dark absolute text-grey-darker pin-l pin-t opacity-50 mx-4 my-3 md:mx-6 md:my-6">
+            <path d="M51.704,51.273L36.845,35.82c3.79-3.801,6.138-9.041,6.138-14.82c0-11.58-9.42-21-21-21s-21,9.42-21,21s9.42,21,21,21
+c5.083,0,9.748-1.817,13.384-4.832l14.895,15.491c0.196,0.205,0.458,0.307,0.721,0.307c0.25,0,0.499-0.093,0.693-0.279
+C52.074,52.304,52.086,51.671,51.704,51.273z M21.983,40c-10.477,0-19-8.523-19-19s8.523-19,19-19s19,8.523,19,19
+S32.459,40,21.983,40z"></path>
+        </svg>
+    </div>
+    <div style="left: 50vw;top: 6.7vw;position: absolute;">
+        <button style="height:40px"
+            class="py-3 px-8 mx-0 text-base rounded-lg text-white trans bg-lf-teal hover:bg-lf-teal-dark-3 hover:shadow-lg-teal font-lf-semi-bold flex-no-shrink">Sign
+            up
+        </button>
+    </div>
+    <div style="left: 70vw;top: 6.7vw;position: absolute;">
+        <button style="height:40px"
+            class="py-3 px-8 mx-0 text-base rounded-lg text-white trans bg-lf-teal hover:bg-lf-teal-dark-3 hover:shadow-lg-teal font-lf-semi-bold flex-no-shrink">Sign
+            up
+        </button>
+    </div>
+
     <br>
     <br>
     <br>
@@ -116,8 +138,8 @@
     </div>
 
     <p
-    style="font-family: 'Skia', sans-serif;position: absolute;top: 70vw;left: 44vw;font-size: 0.9vw;color: #999999;width: 12vw;line-height: 1.5;text-align: justify;">
-    Emison Lu & Lynn Zhang</p>
+        style="font-family: 'Skia', sans-serif;position: absolute;top: 70vw;left: 44vw;font-size: 0.9vw;color: #999999;width: 12vw;line-height: 1.5;text-align: justify;">
+        Emison Lu & Lynn Zhang</p>
 
     <script src="https://cdn.lordicon.com/libs/mssddfmo/lord-icon-2.1.0.js"></script>
 </body>
