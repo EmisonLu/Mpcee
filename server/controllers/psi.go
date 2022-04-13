@@ -22,17 +22,17 @@ type PsiCheckController struct {
 }
 
 func (c *PsiController) Get() {
-	// if !c.Islogin() {
-	// 	c.Redirect("/login", 302)
-	// }
+	if !c.Islogin() {
+		c.Redirect("/login", 302)
+	}
 
 	c.TplName = "psi.html"
 }
 
 func (c *PsiSearchController) Post() {
-	// if !c.Islogin() {
-	// 	c.Redirect("/login", 302)
-	// }
+	if !c.Islogin() {
+		c.Redirect("/login", 302)
+	}
 
 	ReturnData := make(map[string]interface{})
 
@@ -72,9 +72,9 @@ func (c *PsiSearchController) Post() {
 }
 
 func (c *PsiCheckController) Post() {
-	// if !c.Islogin() {
-	// 	c.Redirect("/login", 302)
-	// }
+	if !c.Islogin() {
+		c.Redirect("/login", 302)
+	}
 
 	ReturnData := make(map[string]interface{})
 
@@ -86,7 +86,7 @@ func (c *PsiCheckController) Post() {
 	psi_map[user1] = user2;
 	times := 1
 
-    for ; times <= 10; times++ {
+    for ; times <= 20; times++ {
         user, ok := psi_map[user2]
 
 		if ok == false {
@@ -101,13 +101,15 @@ func (c *PsiCheckController) Post() {
 		} else {
 			ReturnData["res"] = "0"
 			ReturnData["message"] = "Initiator and participant do not match!"
+			delete(psi_map, user1)
 			break
 		}
     }
 
-	if times == 11 {
+	if times == 21 {
 		ReturnData["res"] = "0"
 		ReturnData["message"] = "Time out!"
+		delete(psi_map, user1)
 	}
 
 	c.Data["json"] = ReturnData

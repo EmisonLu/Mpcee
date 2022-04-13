@@ -11,9 +11,9 @@ import (
 )
 
 func main() {
-	// if !enclave_init() {
-	// 	return
-	// }
+	if !enclave_init() {
+		return
+	}
 	beego.BConfig.WebConfig.Session.SessionOn = true
 	beego.Run("0.0.0.0:10001")
 }
