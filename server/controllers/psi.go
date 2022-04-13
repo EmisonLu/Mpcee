@@ -22,17 +22,17 @@ type PsiCheckController struct {
 }
 
 func (c *PsiController) Get() {
-	if !c.Islogin() {
-		c.Redirect("/login", 302)
-	}
+	// if !c.Islogin() {
+	// 	c.Redirect("/login", 302)
+	// }
 
 	c.TplName = "psi.html"
 }
 
 func (c *PsiSearchController) Post() {
-	if !c.Islogin() {
-		c.Redirect("/login", 302)
-	}
+	// if !c.Islogin() {
+	// 	c.Redirect("/login", 302)
+	// }
 
 	ReturnData := make(map[string]interface{})
 
@@ -72,9 +72,9 @@ func (c *PsiSearchController) Post() {
 }
 
 func (c *PsiCheckController) Post() {
-	if !c.Islogin() {
-		c.Redirect("/login", 302)
-	}
+	// if !c.Islogin() {
+	// 	c.Redirect("/login", 302)
+	// }
 
 	ReturnData := make(map[string]interface{})
 
