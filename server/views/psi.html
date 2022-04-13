@@ -90,14 +90,14 @@ C52.074,52.304,52.086,51.671,51.704,51.273z M21.983,40c-10.477,0-19-8.523-19-19s
 S32.459,40,21.983,40z"></path>
             </svg>
         </div>
-        <div style="left: 51.7vw;top: 9.75vw;position: absolute;">
+        <div style="left: 52vw;top: 9.75vw;position: absolute;">
             <button id="button1"
                 style="height:40px;font-family: 'Skia', sans-serif;font-weight: 600;width:7vw;height:2.4vw"
                 onclick="search(0)"
                 class="py-3 px-8 mx-0 text-base rounded-lg text-white trans bg-lf-teal hover:bg-lf-teal-dark-3 hover:shadow-lg-teal font-lf-semi-bold flex-no-shrink">initiator
             </button>
         </div>
-        <div style="left: 61vw;top: 9.75vw;position: absolute;">
+        <div style="left: 61.2vw;top: 9.75vw;position: absolute;">
             <button id="button2"
                 style="height:40px;font-family: 'Skia', sans-serif;font-weight: 600;width:8vw;height:2.4vw"
                 onclick="search(1)"
@@ -179,7 +179,6 @@ S32.459,40,21.983,40z"></path>
     <script src="/static/js/jquery.js"></script>
 
     <script>
-
         var initiator;
         var participant;
         var username = sessionStorage.getItem("userName");
@@ -195,7 +194,7 @@ S32.459,40,21.983,40z"></path>
                 window.location.href = '/psi';
                 return;
             }
-            if (owner == user) {
+            if (owner.toLowerCase() == user.toLowerCase()) {
                 alert("The input username cannot be yourself");
                 window.location.href = '/psi';
                 return;
@@ -269,7 +268,7 @@ S32.459,40,21.983,40z"></path>
 
             var user1 = participant.toLowerCase() + '_participant';
             var user2 = initiator.toLowerCase() + '_initiator';
-            if (username == initiator) {
+            if (username.toLowerCase() == initiator.toLowerCase()) {
                 user1 = initiator.toLowerCase() + '_initiator';
                 user2 = participant.toLowerCase() + '_participant';
             }
@@ -282,17 +281,28 @@ S32.459,40,21.983,40z"></path>
                 success: function (data) {
                     console.log(data);
                     if (data.res === "1") {
-                        document.getElementById("background2").innerHTML = "";
-                        return;
+                        document.getElementById("background2").innerHTML = '<div style="left:24.3vw;top:1.5vw;position: absolute;"><img src="../static/image/a2.png" style="width:50vw"></div>';
+                        // return;
                     } else {
                         alert(data.message);
-                        window.location.href = '/psi';
-                        return;
+                        // window.location.href = '/psi';
+                        // return;
                     }
+                    document.getElementById("background2").innerHTML = '<div style="left:24.3vw;top:1.5vw;position: absolute;"><img src="../static/image/a2.png" style="width:50vw"></div><div style="left:42vw;top:8vw;position:absolute;"><button type="button" onclick="upfile.click()" style="padding:0;margin:0;background-color:white"><img src="../static/image/upload.gif" style="width:16vw"></button><input type="file" id="upfile" accept=\'\' onchange="uploadFile()" style="visibility: hidden; position: absolute;"></div><div id="button3" style="left: 61vw;top: 25vw;position: absolute;"><button style="height:40px;font-family: \'Skia\', sans-serif;background-color:#d5d5d5;font-weight: 600;width:8vw;height:2.4vw" class="py-3 px-8 mx-0 text-base rounded-lg text-white trans bg-lf-teal hover:bg-lf-teal-dark-3 hover:shadow-lg-teal font-lf-semi-bold flex-no-shrink">next step</button></div>';
                 }
             });
         }
 
+        function uploadFile() {
+            'use strict';
+            
+            var files = document.getElementById("upfile").files;
+            var file = files[0];
+            var title = file.name;
+            console.log(title);
+            console.log(files);
+
+        }
     </script>
 </body>
 

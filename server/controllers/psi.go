@@ -86,7 +86,7 @@ func (c *PsiCheckController) Post() {
 	psi_map[user1] = user2;
 	times := 1
 
-    for ; times <= 20; times++ {
+    for ; times <= 5; times++ {
         user, ok := psi_map[user2]
 
 		if ok == false {
@@ -106,7 +106,7 @@ func (c *PsiCheckController) Post() {
 		}
     }
 
-	if times == 21 {
+	if times == 6 {
 		ReturnData["res"] = "0"
 		ReturnData["message"] = "Time out!"
 		delete(psi_map, user1)
