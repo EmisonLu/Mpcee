@@ -35,6 +35,14 @@
             position: relative;
         }
 
+        #background2 {
+            width: 100%;
+            height: 0;
+            padding: 0;
+            padding-bottom: 30%;
+            position: relative;
+        }
+
         #background3 {
             width: 100%;
             height: 0;
@@ -63,44 +71,72 @@
         </p>
     </div>
 
-    <div class="outline-none bg-purple-white rounded-full w-full border-0 md:p-3 pb-2 relative"
-        style="width: 15vw;left:25vw;top:6vw;position: absolute;">
-        <input id="searchinput" type="search" name="q" autocomplete="off" placeholder="Search for participant"
-            v-model="search"
-            class="search_field trans trans-slow outline-none text-sm transition hover:bg-grey-light focus:bg-lf-teal focus:text-white focus:font-bold bg-lf-bg rounded-lg shadow-sm w-full w-full border p-3 pl-10">
-        <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
-            viewBox="0 0 52.966 52.966" xml:space="preserve"
-            class="h-4 text-dark absolute text-grey-darker pin-l pin-t opacity-50 mx-4 my-3 md:mx-6 md:my-6">
-            <path d="M51.704,51.273L36.845,35.82c3.79-3.801,6.138-9.041,6.138-14.82c0-11.58-9.42-21-21-21s-21,9.42-21,21s9.42,21,21,21
+    <div id="background2">
+        <div style="left:24.3vw;top:1.5vw;position: absolute;">
+            <img src="../static/image/a1.png" style="width:50vw">
+        </div>
+
+        <div class="outline-none bg-purple-white rounded-full w-full border-0 md:p-3 pb-2 relative"
+            style="width: 20vw;left:29vw;top:9vw;position: absolute;font-family: 'Skia', sans-serif;height:2.4vw">
+            <input id="searchinput" type="search" name="q" autocomplete="off" placeholder="Search for participant"
+                v-model="search"
+                class="search_field trans trans-slow outline-none text-sm transition hover:bg-grey-light focus:bg-lf-teal focus:text-white focus:font-bold bg-lf-bg rounded-lg shadow-sm w-full w-full border p-3 pl-10">
+            <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px"
+                y="0px" viewBox="0 0 52.966 52.966" xml:space="preserve"
+                class="h-4 text-dark absolute text-grey-darker pin-l pin-t opacity-50 mx-4 my-3 md:mx-6 md:my-6">
+                <path d="M51.704,51.273L36.845,35.82c3.79-3.801,6.138-9.041,6.138-14.82c0-11.58-9.42-21-21-21s-21,9.42-21,21s9.42,21,21,21
 c5.083,0,9.748-1.817,13.384-4.832l14.895,15.491c0.196,0.205,0.458,0.307,0.721,0.307c0.25,0,0.499-0.093,0.693-0.279
 C52.074,52.304,52.086,51.671,51.704,51.273z M21.983,40c-10.477,0-19-8.523-19-19s8.523-19,19-19s19,8.523,19,19
 S32.459,40,21.983,40z"></path>
-        </svg>
-    </div>
-    <div style="left: 50vw;top: 6.7vw;position: absolute;">
-        <button style="height:40px"
-            class="py-3 px-8 mx-0 text-base rounded-lg text-white trans bg-lf-teal hover:bg-lf-teal-dark-3 hover:shadow-lg-teal font-lf-semi-bold flex-no-shrink">Sign
-            up
-        </button>
-    </div>
-    <div style="left: 70vw;top: 6.7vw;position: absolute;">
-        <button style="height:40px"
-            class="py-3 px-8 mx-0 text-base rounded-lg text-white trans bg-lf-teal hover:bg-lf-teal-dark-3 hover:shadow-lg-teal font-lf-semi-bold flex-no-shrink">Sign
-            up
-        </button>
+            </svg>
+        </div>
+        <div style="left: 51.7vw;top: 9.75vw;position: absolute;">
+            <button id="button1"
+                style="height:40px;font-family: 'Skia', sans-serif;font-weight: 600;width:7vw;height:2.4vw"
+                onclick="search(0)"
+                class="py-3 px-8 mx-0 text-base rounded-lg text-white trans bg-lf-teal hover:bg-lf-teal-dark-3 hover:shadow-lg-teal font-lf-semi-bold flex-no-shrink">initiator
+            </button>
+        </div>
+        <div style="left: 61vw;top: 9.75vw;position: absolute;">
+            <button id="button2"
+                style="height:40px;font-family: 'Skia', sans-serif;font-weight: 600;width:8vw;height:2.4vw"
+                onclick="search(1)"
+                class="py-3 px-8 mx-0 text-base rounded-lg text-white trans bg-lf-teal hover:bg-lf-teal-dark-3 hover:shadow-lg-teal font-lf-semi-bold flex-no-shrink">participant
+            </button>
+        </div>
+        <div id="icon1" style="left:39vw;top:16vw;position: absolute;opacity: 0.35;">
+            <svg t="1649828859353" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg"
+                p-id="3077" width="6vw" height="5.4vw">
+                <path
+                    d="M928 736H800V608c0-16-12.8-32-32-32s-32 12.8-32 32v128H608c-16 0-32 12.8-32 32s12.8 32 32 32h128v128c0 16 12.8 32 32 32s32-12.8 32-32V800h128c16 0 32-12.8 32-32s-12.8-32-32-32zM768 320c0-140.8-115.2-256-256-256S256 179.2 256 320c0 89.6 44.8 169.6 115.2 214.4C192 592 64 761.6 64 960h64c0-211.2 172.8-384 384-384 140.8 0 256-115.2 256-256zM512 512c-105.6 0-192-86.4-192-192s86.4-192 192-192 192 86.4 192 192-86.4 192-192 192z"
+                    p-id="3078"></path>
+            </svg>
+        </div>
+        <p id="initiator"
+            style="font-family: 'Skia', sans-serif;font-weight: 600;position: absolute;top: 20.8vw;left: 40.2vw;font-size: 0.9vw;color: #aaaaaa;width: 40vw;line-height: 1.5;text-align: justify;">
+            initiator
+        </p>
+        <div id="icon2" style="left:53vw;top:16vw;position: absolute;opacity: 0.35;">
+            <svg t="1649828859353" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg"
+                p-id="3077" width="6vw" height="5.4vw">
+                <path
+                    d="M928 736H800V608c0-16-12.8-32-32-32s-32 12.8-32 32v128H608c-16 0-32 12.8-32 32s12.8 32 32 32h128v128c0 16 12.8 32 32 32s32-12.8 32-32V800h128c16 0 32-12.8 32-32s-12.8-32-32-32zM768 320c0-140.8-115.2-256-256-256S256 179.2 256 320c0 89.6 44.8 169.6 115.2 214.4C192 592 64 761.6 64 960h64c0-211.2 172.8-384 384-384 140.8 0 256-115.2 256-256zM512 512c-105.6 0-192-86.4-192-192s86.4-192 192-192 192 86.4 192 192-86.4 192-192 192z"
+                    p-id="3078"></path>
+            </svg>
+        </div>
+        <p id="participant"
+            style="font-family: 'Skia', sans-serif;font-weight: 600;position: absolute;top: 20.8vw;left: 53.7vw;font-size: 0.9vw;color: #aaaaaa;width: 40vw;line-height: 1.5;text-align: justify;">
+            participant
+        </p>
+        <div id="button3" style="left: 61vw;top: 25vw;position: absolute;">
+            <button
+                style="height:40px;font-family: 'Skia', sans-serif;background-color:#d5d5d5;font-weight: 600;width:8vw;height:2.4vw"
+                class="py-3 px-8 mx-0 text-base rounded-lg text-white trans bg-lf-teal hover:bg-lf-teal-dark-3 hover:shadow-lg-teal font-lf-semi-bold flex-no-shrink">next
+                step
+            </button>
+        </div>
     </div>
 
-    <br>
-    <br>
-    <br>
-    <br>
-    <br>
-    <br>
-    <br>
-    <br>
-    <br>
-    <br>
-    <br>
     <div id="background3">
         <div id="line1"></div>
         <p
@@ -126,7 +162,9 @@ S32.459,40,21.983,40z"></path>
         </p>
         <img src="../static/image/table.png" style="left:30vw;width:40vw;top:23.5vw;position:absolute;">
 
-
+        <p
+            style="font-family: 'Skia', sans-serif;position: absolute;top: 42vw;left: 44vw;font-size: 0.9vw;color: #999999;width: 12vw;line-height: 1.5;text-align: justify;">
+            Emison Lu & Lynn Zhang</p>
     </div>
 
     <div style="left:6vw;top:3vw;position: fixed;width: 5vw;height:5vw;">
@@ -137,11 +175,125 @@ S32.459,40,21.983,40z"></path>
         </a>
     </div>
 
-    <p
-        style="font-family: 'Skia', sans-serif;position: absolute;top: 70vw;left: 44vw;font-size: 0.9vw;color: #999999;width: 12vw;line-height: 1.5;text-align: justify;">
-        Emison Lu & Lynn Zhang</p>
-
     <script src="https://cdn.lordicon.com/libs/mssddfmo/lord-icon-2.1.0.js"></script>
+    <script src="/static/js/jquery.js"></script>
+
+    <script>
+
+        var initiator;
+        var participant;
+        var username = sessionStorage.getItem("userName");
+
+        function search(flag) {
+            'use strict';
+
+            var user = document.getElementById('searchinput').value;
+            var owner = sessionStorage.getItem("userName");
+
+            if (typeof user == "undefined" || user == null || user == "") {
+                alert("Input can not be empty!");
+                window.location.href = '/psi';
+                return;
+            }
+            if (owner == user) {
+                alert("The input username cannot be yourself");
+                window.location.href = '/psi';
+                return;
+            }
+
+            if (flag == 0) {
+                initiator = user;
+                participant = owner;
+            } else {
+                initiator = owner;
+                participant = user;
+            }
+
+            $.ajax({
+                url: "/psi_search",
+                method: "POST",
+                async: false,
+                data: { "initiator": initiator, "participant": participant, "flag": flag },
+                success: function (data) {
+                    if (data.res === "1") {
+                        document.getElementById('searchinput').value = "";
+
+                        var button1 = document.getElementById("button1");
+                        button1.style.backgroundColor = "#d5d5d5"
+                        button1.onclick = "";
+
+                        var button2 = document.getElementById("button2");
+                        button2.style.backgroundColor = "#d5d5d5";
+                        button2.onclick = "";
+
+                        var button3 = document.getElementById("button3");
+                        button3.innerHTML = '<button onclick="check()" style="height:40px;font-family: \'Skia\', sans-serif;font-weight: 600;width:8vw;height:2.4vw" class="py-3 px-8 mx-0 text-base rounded-lg text-white trans bg-lf-teal hover:bg-lf-teal-dark-3 hover:shadow-lg-teal font-lf-semi-bold flex-no-shrink">next step</button>';
+
+                        var icon1 = document.getElementById("icon1");
+                        icon1.style.opacity = 1;
+                        icon1.innerHTML = "<img src='../static/image/user/" + randomNum(1, 22) + ".png' style='width:5.7vw;opacity:1'>";
+                        var icon2 = document.getElementById("icon2");
+                        icon2.style.opacity = 1;
+                        icon2.innerHTML = "<img src='../static/image/user/" + randomNum(1, 22) + ".png' style='width:5.7vw;opacity:1'>";
+
+                        document.getElementById("initiator").innerHTML = "initiator(" + initiator + ")";
+                        document.getElementById("participant").innerHTML = "participant(" + participant + ")";
+
+                        return;
+                    } else {
+                        alert(data.message);
+                        window.location.href = '/psi';
+                        return;
+                    }
+                }
+            });
+        }
+
+        function randomNum(minNum, maxNum) {
+            switch (arguments.length) {
+                case 1:
+                    return parseInt(Math.random() * minNum + 1, 10);
+                    break;
+                case 2:
+                    return parseInt(Math.random() * (maxNum - minNum + 1) + minNum, 10);
+                    break;
+                default:
+                    return 0;
+                    break;
+            }
+        }
+
+        function check() {
+            var background2 = document.getElementById("background2");
+            background2.innerHTML = '<div style="left:24.3vw;top:1.5vw;position: absolute;"><img src="../static/image/a2.png" style="width:50vw"></div><div style="left: 42.5vw;top: 7vw;position: absolute;"><img src="../static/image/load.gif" style="width:15vw"></div> <p style="font-family: \'Skia\', sans-serif;position: absolute;top: 19vw;left: 46.4vw;font-size: 0.9vw;color: #999999;width: 12vw;line-height: 1.5;text-align: justify;">Waiting for check...</p>';
+
+            var user1 = participant.toLowerCase() + '_participant';
+            var user2 = initiator.toLowerCase() + '_initiator';
+            if (username == initiator) {
+                user1 = initiator.toLowerCase() + '_initiator';
+                user2 = participant.toLowerCase() + '_participant';
+            }
+
+            $.ajax({
+                url: "/psi_check",
+                method: "POST",
+                async: true,
+                data: { "user1": user1, "user2": user2 },
+                success: function (data) {
+                    console.log(data);
+                    if (data.res === "1") {
+                        document.getElementById("background2").innerHTML = "";
+                        return;
+                    } else {
+                        alert(data.message);
+                        window.location.href = '/psi';
+                        return;
+                    }
+                }
+            });
+        }
+
+    </script>
 </body>
 
 </html>

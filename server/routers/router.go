@@ -13,4 +13,6 @@ func init() {
 	beego.Router("/session_key", &controllers.SessionKeyController{})
 	beego.Router("/register", &controllers.RegController{})
 	beego.Router("/psi", &controllers.PsiController{})
+	beego.Router("/psi_search", &controllers.PsiSearchController{})
+	beego.Router("/psi_check", &controllers.PsiCheckController{})
 }

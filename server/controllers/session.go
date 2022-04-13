@@ -7,6 +7,8 @@ type UserStatus struct {
 	islogin  bool
 }
 
+var psi_map = make(map[string] string)
+
 func (c *MainController) Islogin() bool {
 	status := c.GetSession("status")
 	if status == nil {
@@ -40,6 +42,22 @@ func (c *LogoutController) Islogin() bool {
 }
 
 func (c *PsiController) Islogin() bool {
+	status := c.GetSession("status")
+	if status == nil {
+		c.Redirect("/login", 302)
+	}
+	return !(status == nil || (status != nil && !status.(UserStatus).islogin))
+}
+
+func (c *PsiSearchController) Islogin() bool {
+	status := c.GetSession("status")
+	if status == nil {
+		c.Redirect("/login", 302)
+	}
+	return !(status == nil || (status != nil && !status.(UserStatus).islogin))
+}
+
+func (c *PsiCheckController) Islogin() bool {
 	status := c.GetSession("status")
 	if status == nil {
 		c.Redirect("/login", 302)
