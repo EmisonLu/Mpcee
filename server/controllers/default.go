@@ -9,9 +9,9 @@ type MainController struct {
 }
 
 func (c *MainController) ShowIndex() {
-	// if !c.Islogin() {
-	// 	c.Redirect("/login", 302)
-	// }
+	if !c.Islogin() {
+		c.Redirect("/login", 302)
+	}
 
 	c.TplName = "index.html"
 }

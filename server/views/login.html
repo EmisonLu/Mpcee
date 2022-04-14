@@ -103,7 +103,7 @@
                     var session_key_str = bin2String(session_key_u8);
 
                     var session_package = {
-                        user: uname,
+                        user: uname.toLowerCase(),
                         password: pwd,
                         key: session_key_str
                     }

@@ -31,6 +31,8 @@ extern crate base64;
 use std::{
     collections::HashMap, ptr, slice, string::String, string::ToString, sync::SgxMutex as Mutex,
     vec::Vec,
+    thread,
+    time::Duration
 };
 
 extern crate sgx_trts;
@@ -44,6 +46,13 @@ struct G {
 
 #[derive(Serialize, Deserialize, Debug)]
 struct Package {
+    user: String,
+    data: String,
+    user2: String,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+struct PackagePsiCompute {
     user: String,
     data: String,
 }
@@ -61,8 +70,30 @@ struct SessionKeyPackage {
     key: String,
 }
 
+#[derive(Serialize, Deserialize, Debug, Clone)]
+struct RawInput {
+    data: String,
+    common: String,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+struct Items {
+    a: std::vec::Vec<Item>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+struct Item {
+    data1: String,
+    common: String,
+    data2: String,
+}
+
 lazy_static! {
     static ref KEYMAP: Mutex<HashMap<String, [u8; 32]>> = Mutex::new(HashMap::new());
+
+    static ref PSIMAP: Mutex<HashMap<String, Vec<RawInput>>> = Mutex::new(HashMap::new());
+    static ref PSIRESMAP: Mutex<HashMap<String, Items>> = Mutex::new(HashMap::new());
+    
     static ref PRIVATE_KEY: RSAPrivateKey = {
         let mut rng = rand::rngs::StdRng::seed_from_u64(0);
         let bits = 2048;
@@ -389,4 +420,152 @@ pub extern "C" fn user_logout(some_string: *const u8, some_len: usize) -> sgx_st
     (*KEYMAP).lock().unwrap().remove(&user_name);
 
     sgx_status_t::SGX_SUCCESS
+}
+
+#[no_mangle]
+pub extern "C" fn psi_upload(some_string: *const u8, some_len: usize) -> sgx_status_t {
+    let v: &[u8] = unsafe { std::slice::from_raw_parts(some_string, some_len) };
+    let vraw = String::from_utf8(v.to_vec()).unwrap();  
+    let package_input: Package = serde_json::from_str(&vraw).unwrap();
+    let requester = package_input.user;
+    let user = requester.clone();
+    let user2 = package_input.user2;
+    let enc_data = package_input.data;
+
+    let x = sgx_decrypt(enc_data.as_ptr() as *const u8, enc_data.len(), &requester);
+
+    if let Err(y) = x {
+        eprintln!("sgx_decrypt failed: {:?}", y);
+        return sgx_status_t::SGX_ERROR_UNEXPECTED;
+    }
+
+    let line1: String = x.unwrap();
+
+    // let print_struct = Package{user:requester.clone(), data:line1.clone()[requester.len()+1..].to_string(), user2: user2.clone()};
+    // println!("服务端可信区的明文数据: ");
+    // println!("{:#?}", print_struct);
+    // println!("=====================================\n\n\n");
+
+    // let line1 = line.clone();
+    let v: &[u8] = unsafe { std::slice::from_raw_parts(line1.as_ptr() as *const u8, line1.len()) };
+    let mut v_vec = v.to_vec();
+    for i in &mut v_vec {
+        if *i < 32{
+            *i = 32;
+        }
+    }
+
+    let line = String::from_utf8(v_vec).unwrap();
+
+    let raw_input: Vec<RawInput> = match serde_json::from_str(&line){
+        Ok(r) => r,
+        Err(_) =>{
+            eprintln!("parse build package error.");
+            return sgx_status_t::SGX_ERROR_UNEXPECTED;
+        }
+    };
+    // println!("{:#?}", raw_input);
+
+    (*PSIMAP).lock().unwrap().insert(requester, raw_input);
+
+    for (key, value) in (*PSIMAP).lock().unwrap().iter() {
+        println!("key: {}", key);
+        println!("value: {:#?}", value);
+    }
+
+    let mut x = 0;
+    while x != 20 {
+        if !(*PSIMAP).lock().unwrap().contains_key(&user2) {
+            x += 1;
+            thread::sleep(Duration::from_millis(1000));
+            continue;
+        }
+        break;
+    }
+    
+    if x == 20 {
+        (*PSIMAP).lock().unwrap().remove(&user);
+        sgx_status_t::SGX_ERROR_UNEXPECTED
+    } else {
+        sgx_status_t::SGX_SUCCESS
+    }    
+}
+
+#[no_mangle]
+pub extern "C" fn psi_compute(
+    some_string: *const u8,
+    some_len: usize,
+    encrypted_result_string: *mut u8,
+    result_max_len: usize,
+) -> sgx_status_t {
+    let v: &[u8] = unsafe { std::slice::from_raw_parts(some_string, some_len) };
+    let vraw = String::from_utf8(v.to_vec()).unwrap();  
+    let package_input: PackagePsiCompute = serde_json::from_str(&vraw).unwrap();
+
+    let requester = package_input.user;
+    let enc_data = package_input.data;
+
+    let x = sgx_decrypt(enc_data.as_ptr() as *const u8, enc_data.len(), &requester);
+
+    if let Err(y) = x {
+        eprintln!("sgx_decrypt failed: {:?}", y);
+        return sgx_status_t::SGX_ERROR_UNEXPECTED;
+    }
+    let user2: String = x.unwrap();
+
+    let mut point = Items { a: vec![] };
+    
+    if (*PSIRESMAP).lock().unwrap().contains_key(&user2) {
+        point = (*PSIRESMAP).lock().unwrap().get(&user2).unwrap().clone();
+        (*PSIRESMAP).lock().unwrap().remove(&user2);
+    } else {
+        if !(*PSIMAP).lock().unwrap().contains_key(&requester) {
+            return sgx_status_t::SGX_ERROR_UNEXPECTED;
+        }
+
+        let user1_data = (*PSIMAP).lock().unwrap().get(&requester).unwrap().clone();
+        let user2_data = (*PSIMAP).lock().unwrap().get(&user2).unwrap().clone();
+
+        for val1 in user1_data {
+            for val2 in user2_data.clone() {
+                let RawInput{data: data1,common: common1}=val1.clone();
+                let RawInput{data: data2,common: common2}=val2.clone();
+
+                if common1 == common2 {
+                    let g = Item {
+                        data1: data1.to_string(),
+                        common: common1.to_string(),
+                        data2: data2.to_string(),
+                    };
+                    point.a.push(g);
+                }
+            }
+        }
+
+        (*PSIRESMAP).lock().unwrap().insert(requester.clone(), point.clone());
+        (*PSIMAP).lock().unwrap().remove(&requester);
+        (*PSIMAP).lock().unwrap().remove(&user2);
+    }
+
+    let x = serde_json::to_string(&point).unwrap();
+    let encrypted_x = str2aes2base64(&x, &requester);
+
+    if encrypted_x.len() < result_max_len {
+        unsafe {
+            // ptr::copy_nonoverlapping(x.as_ptr(), result_string, x.len());
+            ptr::copy_nonoverlapping(
+                encrypted_x.as_ptr(),
+                encrypted_result_string,
+                encrypted_x.len(),
+            );
+        }
+        return sgx_status_t::SGX_SUCCESS;
+    } else {
+        eprintln!(
+            "Result len = {} > buf size = {}",
+            encrypted_x.len(),
+            result_max_len
+        );
+        return sgx_status_t::SGX_ERROR_WASM_BUFFER_TOO_SHORT;
+    }
 }

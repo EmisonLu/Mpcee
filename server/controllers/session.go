@@ -64,3 +64,19 @@ func (c *PsiCheckController) Islogin() bool {
 	}
 	return !(status == nil || (status != nil && !status.(UserStatus).islogin))
 }
+
+func (c *PsiUploadController) Islogin() bool {
+	status := c.GetSession("status")
+	if status == nil {
+		c.Redirect("/login", 302)
+	}
+	return !(status == nil || (status != nil && !status.(UserStatus).islogin))
+}
+
+func (c *PsiComputeController) Islogin() bool {
+	status := c.GetSession("status")
+	if status == nil {
+		c.Redirect("/login", 302)
+	}
+	return !(status == nil || (status != nil && !status.(UserStatus).islogin))
+}

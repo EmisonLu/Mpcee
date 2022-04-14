@@ -6,8 +6,10 @@ package controllers
 //extern unsigned long long init_enclave();
 //extern void rust_get_session_key(char* enc_pswd_from_db, size_t enc_pswd_from_db_len, char* enc_data, size_t enc_data_len, size_t* result_string_size);
 //extern void rust_register(char* enc_user_pswd, size_t enc_user_pswd_len, char* user, size_t* user_len, char* enc_pswd, size_t* enc_pswd_len, size_t* result_string_size, size_t string_limit);
-//extern void rust_user_logout( char* some_string, size_t some_len,size_t* result_string_size);
-//extern void rust_server_hello( char* pk_n, size_t* pk_n_len, char* pk_e, size_t* pk_e_len, char* certificate, size_t* certificate_len, size_t string_limit);
+//extern void rust_user_logout(char* some_string, size_t some_len,size_t* result_string_size);
+//extern void rust_server_hello(char* pk_n, size_t* pk_n_len, char* pk_e, size_t* pk_e_len, char* certificate, size_t* certificate_len, size_t string_limit);
+//extern void rust_psi_upload(char* some_string, size_t some_len,size_t * result_string_size);
+//extern void rust_psi_compute(char* user, size_t user_len, size_t result_string_limit, char* encrypted_result_string, size_t* encrypted_result_string_size);
 import "C"
 
 const STRING_LIMIT = 8192
@@ -73,4 +75,27 @@ func user_logout(input string) bool {
 		return true
 	}
 	return false
+}
+
+func psi_upload(input string) bool {
+	success := (C.ulong)(0)
+	C.rust_psi_upload(C.CString(input), C.ulong(len(input)), &success)
+
+	if success == 1 {
+		return true
+	}
+	return false
+}
+
+func psi_compute(input string) string {
+	const result_string_limit = 8192
+
+	c_encrypted := (*C.char)(C.malloc(result_string_limit))
+	d_encrypted := (C.ulong)(0)
+
+	C.rust_psi_compute(C.CString(input), C.ulong(len(input)), result_string_limit, c_encrypted, &d_encrypted)
+
+	str_encrypted := C.GoStringN(c_encrypted, (C.int)(d_encrypted))
+
+	return str_encrypted
 }

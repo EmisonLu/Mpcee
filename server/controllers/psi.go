@@ -21,18 +21,26 @@ type PsiCheckController struct {
 	beego.Controller
 }
 
+type PsiUploadController struct {
+	beego.Controller
+}
+
+type PsiComputeController struct {
+	beego.Controller
+}
+
 func (c *PsiController) Get() {
-	// if !c.Islogin() {
-	// 	c.Redirect("/login", 302)
-	// }
+	if !c.Islogin() {
+		c.Redirect("/login", 302)
+	}
 
 	c.TplName = "psi.html"
 }
 
 func (c *PsiSearchController) Post() {
-	// if !c.Islogin() {
-	// 	c.Redirect("/login", 302)
-	// }
+	if !c.Islogin() {
+		c.Redirect("/login", 302)
+	}
 
 	ReturnData := make(map[string]interface{})
 
@@ -72,9 +80,9 @@ func (c *PsiSearchController) Post() {
 }
 
 func (c *PsiCheckController) Post() {
-	// if !c.Islogin() {
-	// 	c.Redirect("/login", 302)
-	// }
+	if !c.Islogin() {
+		c.Redirect("/login", 302)
+	}
 
 	ReturnData := make(map[string]interface{})
 
@@ -86,7 +94,7 @@ func (c *PsiCheckController) Post() {
 	psi_map[user1] = user2;
 	times := 1
 
-    for ; times <= 5; times++ {
+    for ; times <= 10; times++ {
         user, ok := psi_map[user2]
 
 		if ok == false {
@@ -106,11 +114,49 @@ func (c *PsiCheckController) Post() {
 		}
     }
 
-	if times == 6 {
+	if times == 11 {
 		ReturnData["res"] = "0"
 		ReturnData["message"] = "Time out!"
 		delete(psi_map, user1)
 	}
+
+	c.Data["json"] = ReturnData
+	c.ServeJSON()
+}
+
+func (c *PsiUploadController) Post() {
+	if !c.Islogin() {
+		c.Redirect("/login", 302)
+	}
+
+	ReturnData := make(map[string]interface{})
+
+	package_str := c.GetString("package_str")
+	if psi_upload(package_str){
+		ReturnData["res"] = "1"
+		ReturnData["message"] = "0"
+	} else {
+		ReturnData["res"] = "0"
+		ReturnData["message"] = "Time out!"
+	}
+
+	c.Data["json"] = ReturnData
+	c.ServeJSON()
+}
+
+func (c *PsiComputeController) Post() {
+	if !c.Islogin() {
+		c.Redirect("/login", 302)
+	}
+
+	ReturnData := make(map[string]interface{})
+
+	package_str := c.GetString("package_str")
+
+	res := psi_compute(package_str)
+
+	ReturnData["res"] = "1"
+	ReturnData["message"] = res
 
 	c.Data["json"] = ReturnData
 	c.ServeJSON()

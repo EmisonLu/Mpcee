@@ -90,14 +90,14 @@ C52.074,52.304,52.086,51.671,51.704,51.273z M21.983,40c-10.477,0-19-8.523-19-19s
 S32.459,40,21.983,40z"></path>
             </svg>
         </div>
-        <div style="left: 52vw;top: 9.75vw;position: absolute;">
+        <div id="b1" style="left: 52vw;top: 9.75vw;position: absolute;">
             <button id="button1"
                 style="height:40px;font-family: 'Skia', sans-serif;font-weight: 600;width:7vw;height:2.4vw"
                 onclick="search(0)"
                 class="py-3 px-8 mx-0 text-base rounded-lg text-white trans bg-lf-teal hover:bg-lf-teal-dark-3 hover:shadow-lg-teal font-lf-semi-bold flex-no-shrink">initiator
             </button>
         </div>
-        <div style="left: 61.2vw;top: 9.75vw;position: absolute;">
+        <div id="b2" style="left: 61.2vw;top: 9.75vw;position: absolute;">
             <button id="button2"
                 style="height:40px;font-family: 'Skia', sans-serif;font-weight: 600;width:8vw;height:2.4vw"
                 onclick="search(1)"
@@ -157,7 +157,7 @@ S32.459,40,21.983,40z"></path>
         <p
             style="font-family: 'Skia', sans-serif;position: absolute;top: 17vw;left: 30vw;font-size: 1vw;color: #050505;width: 40vw;line-height: 1.5;text-align: justify;">
             2. Both parties upload an Excel file in a predetermined format to complete the intersection calculation.
-            Columns with the same field need to be specially identified, hereby "tag1". The data format needs to meet
+            Columns with the same field need to be specially identified, hereby "common". The data format needs to meet
             the following requirements:
         </p>
         <img src="../static/image/table.png" style="left:30vw;width:40vw;top:23.5vw;position:absolute;">
@@ -177,6 +177,8 @@ S32.459,40,21.983,40z"></path>
 
     <script src="https://cdn.lordicon.com/libs/mssddfmo/lord-icon-2.1.0.js"></script>
     <script src="/static/js/jquery.js"></script>
+    <script src="https://cdn.sheetjs.com/xlsx-0.18.5/package/dist/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/node-forge@0.7.0/dist/forge.min.js"></script>
 
     <script>
         var initiator;
@@ -226,7 +228,7 @@ S32.459,40,21.983,40z"></path>
                         button2.onclick = "";
 
                         var button3 = document.getElementById("button3");
-                        button3.innerHTML = '<button onclick="check()" style="height:40px;font-family: \'Skia\', sans-serif;font-weight: 600;width:8vw;height:2.4vw" class="py-3 px-8 mx-0 text-base rounded-lg text-white trans bg-lf-teal hover:bg-lf-teal-dark-3 hover:shadow-lg-teal font-lf-semi-bold flex-no-shrink">next step</button>';
+                        button3.innerHTML = '<button onclick="check()" style="height:40px;font-family: \'Skia\', sans-serif;font-weight: 600;width:8vw;height:2.4vw" class="py-3 px-8 mx-0 text-base rounded-lg text-white trans bg-lf-teal hover:bg-lf-teal-dark-3 hover:shadow-lg-teal font-lf-semi-bold flex-no-shrink">Check</button>';
 
                         var icon1 = document.getElementById("icon1");
                         icon1.style.opacity = 1;
@@ -264,7 +266,7 @@ S32.459,40,21.983,40z"></path>
 
         function check() {
             var background2 = document.getElementById("background2");
-            background2.innerHTML = '<div style="left:24.3vw;top:1.5vw;position: absolute;"><img src="../static/image/a2.png" style="width:50vw"></div><div style="left: 42.5vw;top: 7vw;position: absolute;"><img src="../static/image/load.gif" style="width:15vw"></div> <p style="font-family: \'Skia\', sans-serif;position: absolute;top: 19vw;left: 46.4vw;font-size: 0.9vw;color: #999999;width: 12vw;line-height: 1.5;text-align: justify;">Waiting for check...</p>';
+            background2.innerHTML = '<div style="left:24.3vw;top:1.5vw;position: absolute;"><img src="../static/image/a2.png" style="width:50vw"></div><div style="left: 42.5vw;top: 7vw;position: absolute;"><img src="../static/image/load.gif" style="width:15vw"></div> <p style="font-family: \'Skia\', sans-serif;position: absolute;top: 19vw;left: 46.4vw;font-size: 0.9vw;color: #999999;width: 12vw;line-height: 1.5;text-align: justify;">Waiting for check...</p><div id="button3" style="left: 61vw;top: 25vw;position: absolute;"><button style="height:40px;font-family: \'Skia\', sans-serif;background-color:#d5d5d5;font-weight: 600;width:8vw;height:2.4vw" class="py-3 px-8 mx-0 text-base rounded-lg text-white trans bg-lf-teal hover:bg-lf-teal-dark-3 hover:shadow-lg-teal font-lf-semi-bold flex-no-shrink">Compute</button></div>';
 
             var user1 = participant.toLowerCase() + '_participant';
             var user2 = initiator.toLowerCase() + '_initiator';
@@ -281,27 +283,186 @@ S32.459,40,21.983,40z"></path>
                 success: function (data) {
                     console.log(data);
                     if (data.res === "1") {
-                        document.getElementById("background2").innerHTML = '<div style="left:24.3vw;top:1.5vw;position: absolute;"><img src="../static/image/a2.png" style="width:50vw"></div>';
-                        // return;
+                        document.getElementById("background2").innerHTML = '<div style="left:24.3vw;top:1.5vw;position: absolute;"><img src="../static/image/a2.png" style="width:50vw"></div><div style="left:42vw;top:8vw;position:absolute;"><button type="button" onclick="upfile.click()" style="padding:0;margin:0;background-color:white"><img src="../static/image/upload.gif" style="width:16vw"></button><input type="file" id="upfile" accept=\'\' onchange="uploadFile()" style="visibility: hidden; position: absolute;"></div><div id="button3" style="left: 61vw;top: 25vw;position: absolute;"><button style="height:40px;font-family: \'Skia\', sans-serif;background-color:#d5d5d5;font-weight: 600;width:8vw;height:2.4vw" class="py-3 px-8 mx-0 text-base rounded-lg text-white trans bg-lf-teal hover:bg-lf-teal-dark-3 hover:shadow-lg-teal font-lf-semi-bold flex-no-shrink">Compute</button></div>';
+                        return;
                     } else {
                         alert(data.message);
-                        // window.location.href = '/psi';
-                        // return;
+                        window.location.href = '/psi';
+                        return;
                     }
-                    document.getElementById("background2").innerHTML = '<div style="left:24.3vw;top:1.5vw;position: absolute;"><img src="../static/image/a2.png" style="width:50vw"></div><div style="left:42vw;top:8vw;position:absolute;"><button type="button" onclick="upfile.click()" style="padding:0;margin:0;background-color:white"><img src="../static/image/upload.gif" style="width:16vw"></button><input type="file" id="upfile" accept=\'\' onchange="uploadFile()" style="visibility: hidden; position: absolute;"></div><div id="button3" style="left: 61vw;top: 25vw;position: absolute;"><button style="height:40px;font-family: \'Skia\', sans-serif;background-color:#d5d5d5;font-weight: 600;width:8vw;height:2.4vw" class="py-3 px-8 mx-0 text-base rounded-lg text-white trans bg-lf-teal hover:bg-lf-teal-dark-3 hover:shadow-lg-teal font-lf-semi-bold flex-no-shrink">next step</button></div>';
                 }
             });
         }
 
         function uploadFile() {
             'use strict';
-            
+
             var files = document.getElementById("upfile").files;
             var file = files[0];
             var title = file.name;
             console.log(title);
             console.log(files);
 
+            if (title.substr(-5, 5) != '.xlsx') {
+                alert("Only supports uploading data in xlsx format!");
+                return;
+            }
+
+            var reader = new FileReader();
+            var wb;
+
+            reader.onload = function (e) {
+                var data = e.target.result;
+                wb = XLSX.read(data, {
+                    type: 'binary'
+                });
+
+                var data = JSON.stringify(XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]]));
+                var vec = JSON.parse(data);
+
+                for (let i = 0; i < vec.length; ++i) {
+                    if (!vec[i].hasOwnProperty("data") || !vec[i].hasOwnProperty("common") || Object.keys(vec[i]).length != 2) {
+                        alert("The uploaded xslx format is not up to standard!");
+                        return;
+                    }
+                    vec[i].data = vec[i].data.toString();
+                    vec[i].common = vec[i].common.toString();
+                }
+
+                var data = JSON.stringify(vec)
+
+                var username = window.sessionStorage.getItem("userName");
+                var key = window.sessionStorage.getItem("session_key");
+
+                var key_str_arr = key.split(",");
+
+                var key_arr = [];
+                for (let i = 0; i < 32; i++) {
+                    key_arr.push(parseInt(key_str_arr[i]))
+                }
+
+                var key_str = bin2String(key_arr);
+                var iv = Uint8Array.from([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
+                var iv_str = bin2String(iv);
+
+                var rawinput_struct = {
+                    a: data
+                }
+                var rawinput_str = JSON.stringify(rawinput_struct);
+
+                var cipher = forge.cipher.createCipher('AES-CBC', key_str);
+                cipher.start({ iv: iv_str });
+                cipher.update(forge.util.createBuffer(rawinput_str));
+                cipher.finish();
+                var encrypted = cipher.output;
+
+                var user2;
+                if (username.toLowerCase() == initiator.toLowerCase()) {
+                    user2 = participant;
+                } else {
+                    user2 = initiator;
+                }
+
+                var package_struct = {
+                    user: username.toLowerCase(),
+                    data: btoa(encrypted.data),
+                    user2: user2.toLowerCase()
+                }
+
+                var package_str = JSON.stringify(package_struct);
+
+                var background2 = document.getElementById("background2");
+                background2.innerHTML = '<div style="left:24.3vw;top:1.5vw;position: absolute;"><img src="../static/image/a2.png" style="width:50vw"></div><div style="left: 42.5vw;top: 7vw;position: absolute;"><img src="../static/image/load.gif" style="width:15vw"></div> <p align="center" style="font-family: \'Skia\', sans-serif;position: absolute;top: 19vw; font-size: 0.9vw;color: #999999;left:43vw;line-height: 1.5;text-align: justify;">Waiting for [' + user2 + '] to upload the file...</p><div id="button3" style="left: 61vw;top: 25vw;position: absolute;"><button style="height:40px;font-family: \'Skia\', sans-serif;background-color:#d5d5d5;font-weight: 600;width:8vw;height:2.4vw" class="py-3 px-8 mx-0 text-base rounded-lg text-white trans bg-lf-teal hover:bg-lf-teal-dark-3 hover:shadow-lg-teal font-lf-semi-bold flex-no-shrink">Compute</button></div>';
+
+                $.ajax({
+                    url: "/psi_upload",
+                    async: true,
+                    method: "POST",
+                    data: { "package_str": package_str },
+                    success: function (data) {
+                        if (data.res === "1") {
+                            document.getElementById("background2").innerHTML = '<div style="left:24.3vw;top:1.5vw;position: absolute;"><img src="../static/image/a2.png" style="width:50vw"></div><div style="left: 46vw;top: 12vw;position: absolute;"><img src="../static/image/circle.gif" style="width:8vw"></div><div id="button3" style="left: 61vw;top: 25vw;position: absolute;"><button onclick="compute()" style="height:40px;font-family: \'Skia\', sans-serif;font-weight: 600;width:8vw;height:2.4vw" class="py-3 px-8 mx-0 text-base rounded-lg text-white trans bg-lf-teal hover:bg-lf-teal-dark-3 hover:shadow-lg-teal font-lf-semi-bold flex-no-shrink">Compute</button></div>';
+                            return;
+                        } else {
+                            alert(data.message);
+                            window.location.href = '/psi';
+                            return;
+                        }
+                    }
+                });
+
+            };
+
+            reader.readAsBinaryString(file);
+
+        }
+
+        function bin2String(array) {
+            return String.fromCharCode.apply(String, array);
+        }
+
+        function compute() {
+            'use strict';
+            var username = window.sessionStorage.getItem("userName");
+            var key = window.sessionStorage.getItem("session_key");
+
+            var key_str_arr = key.split(",");
+
+            var key_arr = [];
+            for (let i = 0; i < 32; i++) {
+                key_arr.push(parseInt(key_str_arr[i]))
+            }
+
+            var key_str = bin2String(key_arr);
+            var iv = Uint8Array.from([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
+            var iv_str = bin2String(iv);
+
+            var user2;
+            if (username.toLowerCase() == initiator.toLowerCase()) {
+                user2 = participant;
+            } else {
+                user2 = initiator;
+            }
+
+            var pattern_struct = {
+                a: user2.toLowerCase(),
+            }
+            var pattern_str = JSON.stringify(pattern_struct);
+
+            var cipher = forge.cipher.createCipher('AES-CBC', key_str);
+            cipher.start({ iv: iv_str });
+            cipher.update(forge.util.createBuffer(pattern_str));
+            cipher.finish();
+            var encrypted = cipher.output;
+
+            var package_struct = {
+                user: username.toLowerCase(),
+                data: btoa(encrypted.data)
+            }
+
+            var package_str = JSON.stringify(package_struct);
+
+            $.ajax({
+                url: "/psi_compute",
+                async: false,
+                method: "POST",
+                data: { "package_str": package_str },
+                success: function (data) {
+                    if (data.res === "1") {
+                        var decipher = forge.cipher.createDecipher('AES-CBC', key_str);
+                        decipher.start({ iv: iv_str });
+                        decipher.update(forge.util.createBuffer(atob(data.message)));
+                        var result = decipher.finish();
+                        console.log(decipher.output.data);
+                        alert("success!");
+                        return;
+                    } else {
+                        alert(data.message);
+                        window.location.href = '/psi';
+                        return;
+                    }
+                }
+            });
         }
     </script>
 </body>

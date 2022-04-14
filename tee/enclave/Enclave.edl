@@ -45,6 +45,9 @@ from "sgx_tprotected_fs.edl" import *;
                                         [out, size=result_max_len] uint8_t* usera, size_t usera_len, 
                                         [out, size=result_max_len] uint8_t* enc_pswd, size_t enc_pswd_len, size_t result_max_len);                             
         public sgx_status_t get_session_key([in, size=enc_pswd_from_db_len] const uint8_t* enc_pswd_from_db, size_t enc_pswd_from_db_len, 
-                                        [in, size=enc_data_len] const uint8_t* enc_data, size_t enc_data_len);              
+                                        [in, size=enc_data_len] const uint8_t* enc_data, size_t enc_data_len);       
+        public sgx_status_t psi_upload([in, size=len] const uint8_t* some_string, size_t len); 
+        public sgx_status_t psi_compute([in, size=len] const uint8_t* some_string, size_t len,
+                                        [out, size=result_max_len]uint8_t* encrypted_result_string, size_t result_max_len);      
     };
 };
