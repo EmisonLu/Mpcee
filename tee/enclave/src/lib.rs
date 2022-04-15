@@ -552,7 +552,6 @@ pub extern "C" fn psi_compute(
 
     if encrypted_x.len() < result_max_len {
         unsafe {
-            // ptr::copy_nonoverlapping(x.as_ptr(), result_string, x.len());
             ptr::copy_nonoverlapping(
                 encrypted_x.as_ptr(),
                 encrypted_result_string,

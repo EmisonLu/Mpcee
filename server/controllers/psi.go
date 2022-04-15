@@ -132,12 +132,14 @@ func (c *PsiUploadController) Post() {
 	ReturnData := make(map[string]interface{})
 
 	package_str := c.GetString("package_str")
+	user1 := c.GetString("user1")
 	if psi_upload(package_str){
 		ReturnData["res"] = "1"
 		ReturnData["message"] = "0"
 	} else {
 		ReturnData["res"] = "0"
 		ReturnData["message"] = "Time out!"
+		delete(psi_map, user1)
 	}
 
 	c.Data["json"] = ReturnData
@@ -152,11 +154,19 @@ func (c *PsiComputeController) Post() {
 	ReturnData := make(map[string]interface{})
 
 	package_str := c.GetString("package_str")
+	user1 := c.GetString("user1")
+
+	delete(psi_map, user1)
 
 	res := psi_compute(package_str)
 
-	ReturnData["res"] = "1"
-	ReturnData["message"] = res
+	if (len(res) == 0) {
+		ReturnData["res"] = "0"
+		ReturnData["message"] = "An error occurred during the computation!"
+	} else {
+		ReturnData["res"] = "1"
+		ReturnData["message"] = res
+	}
 
 	c.Data["json"] = ReturnData
 	c.ServeJSON()

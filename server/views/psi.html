@@ -281,7 +281,6 @@ S32.459,40,21.983,40z"></path>
                 async: true,
                 data: { "user1": user1, "user2": user2 },
                 success: function (data) {
-                    console.log(data);
                     if (data.res === "1") {
                         document.getElementById("background2").innerHTML = '<div style="left:24.3vw;top:1.5vw;position: absolute;"><img src="../static/image/a2.png" style="width:50vw"></div><div style="left:42vw;top:8vw;position:absolute;"><button type="button" onclick="upfile.click()" style="padding:0;margin:0;background-color:white"><img src="../static/image/upload.gif" style="width:16vw"></button><input type="file" id="upfile" accept=\'\' onchange="uploadFile()" style="visibility: hidden; position: absolute;"></div><div id="button3" style="left: 61vw;top: 25vw;position: absolute;"><button style="height:40px;font-family: \'Skia\', sans-serif;background-color:#d5d5d5;font-weight: 600;width:8vw;height:2.4vw" class="py-3 px-8 mx-0 text-base rounded-lg text-white trans bg-lf-teal hover:bg-lf-teal-dark-3 hover:shadow-lg-teal font-lf-semi-bold flex-no-shrink">Compute</button></div>';
                         return;
@@ -300,8 +299,6 @@ S32.459,40,21.983,40z"></path>
             var files = document.getElementById("upfile").files;
             var file = files[0];
             var title = file.name;
-            console.log(title);
-            console.log(files);
 
             if (title.substr(-5, 5) != '.xlsx') {
                 alert("Only supports uploading data in xlsx format!");
@@ -310,6 +307,11 @@ S32.459,40,21.983,40z"></path>
 
             var reader = new FileReader();
             var wb;
+
+            var user1 = participant.toLowerCase() + '_participant';
+            if (username.toLowerCase() == initiator.toLowerCase()) {
+                user1 = initiator.toLowerCase() + '_initiator';
+            }
 
             reader.onload = function (e) {
                 var data = e.target.result;
@@ -378,7 +380,7 @@ S32.459,40,21.983,40z"></path>
                     url: "/psi_upload",
                     async: true,
                     method: "POST",
-                    data: { "package_str": package_str },
+                    data: { "package_str": package_str, "user1": user1 },
                     success: function (data) {
                         if (data.res === "1") {
                             document.getElementById("background2").innerHTML = '<div style="left:24.3vw;top:1.5vw;position: absolute;"><img src="../static/image/a2.png" style="width:50vw"></div><div style="left: 46vw;top: 12vw;position: absolute;"><img src="../static/image/circle.gif" style="width:8vw"></div><div id="button3" style="left: 61vw;top: 25vw;position: absolute;"><button onclick="compute()" style="height:40px;font-family: \'Skia\', sans-serif;font-weight: 600;width:8vw;height:2.4vw" class="py-3 px-8 mx-0 text-base rounded-lg text-white trans bg-lf-teal hover:bg-lf-teal-dark-3 hover:shadow-lg-teal font-lf-semi-bold flex-no-shrink">Compute</button></div>';
@@ -400,6 +402,8 @@ S32.459,40,21.983,40z"></path>
         function bin2String(array) {
             return String.fromCharCode.apply(String, array);
         }
+
+        var data_list;
 
         function compute() {
             'use strict';
@@ -442,19 +446,40 @@ S32.459,40,21.983,40z"></path>
 
             var package_str = JSON.stringify(package_struct);
 
+            var user1 = participant.toLowerCase() + '_participant';
+            if (username.toLowerCase() == initiator.toLowerCase()) {
+                user1 = initiator.toLowerCase() + '_initiator';
+            }
+
             $.ajax({
                 url: "/psi_compute",
                 async: false,
                 method: "POST",
-                data: { "package_str": package_str },
+                data: { "package_str": package_str, "user1": user1 },
                 success: function (data) {
                     if (data.res === "1") {
                         var decipher = forge.cipher.createDecipher('AES-CBC', key_str);
                         decipher.start({ iv: iv_str });
                         decipher.update(forge.util.createBuffer(atob(data.message)));
                         var result = decipher.finish();
-                        console.log(decipher.output.data);
-                        alert("success!");
+
+                        var data_list_str = JSON.parse(decipher.output.data).a;
+                        var data_list = JSON.parse(data_list_str).a;
+                        console.log(data_list);
+
+                        if (data_list.length == 0) {
+                            document.getElementById("background2").innerHTML = '<div style="left:24.3vw;top:1.5vw;position: absolute;"><img src="../static/image/a3.png" style="width:50vw"></div><p align="center" style="font-family: \'Skia\', sans-serif;position: absolute;top: 15vw; font-size: 1.2vw;color: #999999;left:37vw;line-height: 1.5;text-align: justify;">The same data was not found in the computation.</p><div id="button3" style="left: 61vw;top: 25vw;position: absolute;"><button onclick="back()" style="height:40px;font-family: \'Skia\', sans-serif;font-weight: 600;width:8vw;height:2.4vw" class="py-3 px-8 mx-0 text-base rounded-lg text-white trans bg-lf-teal hover:bg-lf-teal-dark-3 hover:shadow-lg-teal font-lf-semi-bold flex-no-shrink">Compute</button></div>';
+                            return;
+                        }
+                        var html = '<div style="left:24.3vw;top:1.5vw;position: absolute;"><img src="../static/image/a3.png" style="width:50vw"></div><div style="left: 46vw;top: 11vw;position: absolute;"><button onclick="download()" style="height:40px;font-family: \'Skia\', sans-serif;font-weight: 600;width:8vw;height:2.4vw" class="py-3 px-8 mx-0 text-base rounded-lg text-white trans bg-lf-teal hover:bg-lf-teal-dark-3 hover:shadow-lg-teal font-lf-semi-bold flex-no-shrink">Download</button></div>';
+                        html = html + '<table hidden id="table1" border="1" cellspacing="5" cellpadding="5" >' + '<thead><tr><td>data1</td><td>common</td><td>data2</td></tr></thead><tbody>';
+                        for (var i = 0; i < data_list.length; i++) {
+                            html = html + '<tr><td>' + data_list[i].data1 + '</td><td>' + data_list[i].common + '</td><td>' + data_list[i].data2 + '</td></tr>'
+                        }
+                        html = html + '</tbody></table>'
+                        document.getElementById('background2').innerHTML = html;
+                        document.getElementById('background2').style.paddingBottom = "20vw";
+
                         return;
                     } else {
                         alert(data.message);
@@ -463,6 +488,61 @@ S32.459,40,21.983,40z"></path>
                     }
                 }
             });
+        }
+
+        function download() {
+            'use strict';
+            var table = document.querySelector("#table1");
+            var sheet = XLSX.utils.table_to_sheet(table1);
+            openDownloadDialog(sheet2blob(sheet), 'result.xlsx');
+        }
+
+        function sheet2blob(sheet, sheetName) {
+            sheetName = sheetName || 'sheet1';
+            var workbook = {
+                SheetNames: [sheetName],
+                Sheets: {}
+            };
+            workbook.Sheets[sheetName] = sheet;
+
+            var wopts = {
+                bookType: 'xlsx',
+                bookSST: false,
+                type: 'binary'
+            };
+            var wbout = XLSX.write(workbook, wopts);
+            var blob = new Blob([s2ab(wbout)], {
+                type: "application/octet-stream"
+            });
+            function s2ab(s) {
+                var buf = new ArrayBuffer(s.length);
+                var view = new Uint8Array(buf);
+                for (var i = 0; i != s.length; ++i) view[i] = s.charCodeAt(i) & 0xFF;
+                return buf;
+            }
+            return blob;
+        }
+
+        function openDownloadDialog(url, saveName) {
+            if (typeof url == 'object' && url instanceof Blob) {
+                url = URL.createObjectURL(url);
+            }
+            var aLink = document.createElement('a');
+            aLink.href = url;
+            aLink.download = saveName || '';
+            var event;
+            if (window.MouseEvent) event = new MouseEvent('click');
+            else {
+                event = document.createEvent('MouseEvents');
+                event.initMouseEvent('click', true, false, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null);
+            }
+            aLink.dispatchEvent(event);
+        }
+
+        function back() {
+            'use strict';
+            window.location.href = '/psi';
+            return;
         }
     </script>
 </body>
